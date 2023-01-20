@@ -1,34 +1,39 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace StarWars
+// Increase internal for faster playback.
+const int FrameInterval = 30;
+StringBuilder _buffer = new();
+
+using (var fileStream = File.OpenText(@"sw1.txt"))
 {
-    class Program
+    while (fileStream is { EndOfStream: false })
     {
-        static void Main(string[] args)
-        {
-            var fileStream = File.OpenText(@"sw1.txt");
-            ShowFrames(fileStream);
-        }
-        static void ShowFrames(StreamReader stream)
-        {
-            Console.Clear();
-            Console.SetCursorPosition(0, 0);
-            // Get the timing from the first line
-            decimal frameCount = decimal.Parse(stream.ReadLine());
-            string frame = string.Empty;
-
-            for (int i = 0; i < 13; i++)
-            {
-                frame += stream.ReadLine() + "\r\n";
-            }
-
-            Console.Write(frame);
-            long frameTimeInTicks = Convert.ToInt64(frameCount / 15 * TimeSpan.TicksPerSecond);
-            Thread.Sleep(TimeSpan.FromTicks(frameTimeInTicks));
-
-            ShowFrames(stream);
-        }
+        await ShowFramesAsync(fileStream); 
     }
+}
+
+Console.Clear();
+Console.SetCursorPosition(0, 0);
+Console.WriteLine("    The end...");
+
+async Task ShowFramesAsync(StreamReader stream)
+{
+    _buffer.Clear();
+
+    var frameCount = decimal.Parse(stream.ReadLine());
+
+    for (var i = 0; i < 13 /* rows to read */; i++)
+    {
+        _buffer.AppendLine(stream.ReadLine());
+    }
+
+    Console.Clear();
+    Console.SetCursorPosition(0, 0);
+    Console.Write(_buffer.ToString());
+
+    var framesInTick = Convert.ToInt64(frameCount / FrameInterval * TimeSpan.TicksPerSecond);
+    await Task.Delay(TimeSpan.FromTicks(framesInTick));
 }

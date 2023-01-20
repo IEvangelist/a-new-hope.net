@@ -5,4 +5,14 @@
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="sw1.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="sw1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
